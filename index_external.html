@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Заявка получена — 24 часа</title>
+  <meta name="robots" content="noindex">
+  <style>
+    :root {
+      --bg:#0c0f14;
+      --card:rgba(16,20,26,.60);
+      --text:#e9edf1;
+      --muted:#a8b1bc;
+      --accent:#d8b56e;
+      --ring:rgba(216,181,110,.38);
+      --glass: blur(14px) saturate(125%);
+      --radius-xl: 22px;
+      --radius-md: 14px;
+    }
+    html, body {height:100%;}
+    body {
+      margin:0; color:var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, "Noto Sans", sans-serif;
+      background:
+        radial-gradient(1200px 700px at 50% -10%, rgba(255,255,255,.05), transparent 45%),
+        url('bg.jpg') center / cover no-repeat fixed,
+        linear-gradient(180deg, #0c0f14 0%, #0a0d12 100%);
+      background-attachment: fixed;
+      display:flex; align-items:center; justify-content:center;
+      padding: clamp(16px, 2.5vw, 32px);
+    }
+    body::before {
+      content:""; position:fixed; inset:0;
+      backdrop-filter: blur(12px);
+      pointer-events:none;
+    }
+    body::after {
+      content:""; position:fixed; inset:0;
+      background: radial-gradient(1400px 900px at 50% 120%, rgba(0,0,0,.55), transparent 60%);
+      pointer-events:none;
+    }
+    .card {
+      width:min(880px, 95vw);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: 0 30px 90px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.06);
+      -webkit-backdrop-filter: var(--glass); backdrop-filter: var(--glass);
+      padding: clamp(18px, 2.2vw, 28px) clamp(16px, 2vw, 24px) clamp(18px, 2.2vw, 26px);
+      text-align:center;
+      animation: fade-up .55s ease both;
+    }
+    @keyframes fade-up { from { opacity:0; transform: translateY(8px) } to { opacity:1; transform: translateY(0) } }
+    .logo { width:64px; height:64px; border-radius:16px; display:block; margin: 0 auto 10px; box-shadow: 0 6px 18px rgba(0,0,0,.35);}
+    .badge {
+      display:inline-block; padding:6px 12px; border-radius:999px;
+      background: rgba(216,181,110,.16); color: var(--accent);
+      box-shadow: inset 0 0 0 1px var(--ring);
+      font-size:.85rem; letter-spacing:.2px; margin-bottom:.35rem;
+    }
+    h1 { margin:.25rem 0 .35rem; font-size: clamp(1.35rem, 1rem + 1.3vw, 1.95rem); }
+    .sub { color: var(--muted); font-size:.98rem; margin-bottom: 1.05rem; }
+    .timer { display:flex; justify-content:center; gap:14px; flex-wrap:wrap; }
+    .tbox {
+      min-width: 96px; padding: 12px 14px; border-radius: var(--radius-md);
+      background: rgba(0,0,0,.48);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+      position:relative;
+    }
+    .tbox::after { content:""; position:absolute; inset:-1px; border-radius: var(--radius-md); box-shadow: 0 0 0 1px var(--ring); }
+    .value { font-variant-numeric: tabular-nums; font-weight:800; line-height:1; font-size: clamp(1.5rem, 1.1rem + 1.1vw, 2.1rem); }
+    .label { margin-top:6px; font-size:.8rem; color: var(--muted); letter-spacing:.3px; }
+    .actions { margin-top: 16px; display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
+    .btn {
+      appearance:none; border:0; cursor:pointer;
+      padding:10px 16px; border-radius:12px;
+      background: linear-gradient(180deg, rgba(216,181,110,.22), rgba(216,181,110,.14));
+      color: var(--accent); font-weight: 600;
+      box-shadow: inset 0 0 0 1px var(--ring), 0 6px 18px rgba(0,0,0,.35);
+    }
+    .help { margin-top:12px; color: var(--muted); font-size:.9rem; }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+  </style>
+</head>
+<body>
+  <main class="card" role="status" aria-live="polite">
+    <img src="logo.png" alt="Логотип" class="logo">
+    <div class="badge">Заявка на доступ</div>
+    <h1>Ожидайте добавления в наше комьюнити</h1>
+    <div class="sub">Проверка и добавление займут до 24 часов.</div>
+    <section class="timer" aria-label="Таймер ожидания">
+      <div class="tbox"><div id="hh" class="value">24</div><div class="label">часы</div></div>
+      <div class="tbox"><div id="mm" class="value">00</div><div class="label">минуты</div></div>
+      <div class="tbox"><div id="ss" class="value">00</div><div class="label">секунды</div></div>
+    </section>
+    <div class="actions">
+      <a class="btn" href="#" onclick="return false;" aria-disabled="true">Связаться</a>
+    </div>
+    <div class="help">Если время истекло, ответьте на письмо/сообщение из приглашения.</div>
+  </main>
+  <script>
+    const KEY = "joinCountdownEnd_v2";
+    let end = localStorage.getItem(KEY);
+    if (!end) {
+      end = Date.now() + 24*60*60*1000;
+      localStorage.setItem(KEY, end);
+    } else { end = parseInt(end, 10); }
+    const hh = document.getElementById('hh');
+    const mm = document.getElementById('mm');
+    const ss = document.getElementById('ss');
+    function tick() {
+      let ms = Math.max(0, end - Date.now());
+      let t = Math.floor(ms/1000);
+      let h = String(Math.floor(t/3600)).padStart(2,'0');
+      let m = String(Math.floor((t%3600)/60)).padStart(2,'0');
+      let s = String(t%60).padStart(2,'0');
+      hh.textContent = h; mm.textContent = m; ss.textContent = s;
+    }
+    tick();
+    setInterval(tick, 1000);
+  </script>
+</body>
+</html>
